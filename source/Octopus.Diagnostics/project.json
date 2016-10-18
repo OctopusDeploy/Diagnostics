@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable",
+    "xmlDoc": true,
+    "warningsAsErrors": true,
+    "nowarn": [
+      "CS1591" // Missing XML Comment
+    ]
+  },
+  "configurations": {
+    "Release": {
+      "buildOptions": {
+        "optimize": true
+      }
+    }
+  },
+  "dependencies": {},
+  "frameworks": {
+    "netstandard1.0": {
+      "dependencies": {
+        "System.Runtime": "4.1.0"
+      },
+      "imports": "dnxcore50"
+    }
+  }
+}
