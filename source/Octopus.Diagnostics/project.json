@@ -1,6 +1,8 @@
 {
   "version": "0.0.0-*",
-  "iconUrl": "http://i.octopusdeploy.com/resources/Avatar3_360.png",
+  "publishOptions": {
+    "iconUrl": "http://i.octopusdeploy.com/resources/Avatar3_360.png"
+  },
   "buildOptions": {
     "debugType": "portable",
     "xmlDoc": true,
