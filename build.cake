@@ -2,7 +2,6 @@
 // TOOLS
 //////////////////////////////////////////////////////////////////////
 #tool "nuget:?package=GitVersion.CommandLine&prerelease"
-#addin "MagicChunks"
 
 using Path = System.IO.Path;
 using IO = System.IO;
@@ -18,51 +17,39 @@ var configuration = Argument("configuration", "Release");
 ///////////////////////////////////////////////////////////////////////////////
 var artifactsDir = "./artifacts";
 var localPackagesDir = "../LocalPackages";
-var packageName = "Octopus.Diagnostics";
-var globalAssemblyFile = "./source/" + packageName + "/Properties/AssemblyInfo.cs";
-var projectToPackage = "./source/" + packageName;
-var cleanups = new List<IDisposable>(); 
 
-var isContinuousIntegrationBuild = !BuildSystem.IsLocalBuild;
-
-var gitVersionInfo = GitVersion(new GitVersionSettings {
-    OutputType = GitVersionOutput.Json
-});
-
-var nugetVersion = gitVersionInfo.NuGetVersion;
+GitVersion gitVersionInfo;
+string nugetVersion;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
 Setup(context =>
 {
-    Information("Building " + packageName + " v{0}", nugetVersion);
+    gitVersionInfo = GitVersion(new GitVersionSettings {
+        OutputType = GitVersionOutput.Json
+    });
+
+    if(BuildSystem.IsRunningOnTeamCity)
+        BuildSystem.TeamCity.SetBuildNumber(gitVersionInfo.NuGetVersion);
+
+    nugetVersion = gitVersionInfo.NuGetVersion;
+
+    Information("Building Octopus.Diagnostics v{0}", nugetVersion);
+    Information("Informational Version {0}", gitVersionInfo.InformationalVersion);
 });
 
 Teardown(context =>
 {
-    Information("Cleaning up");
-    foreach(var item in cleanups)
-        item.Dispose();
-
-		Information("Finished running tasks.");
+	Information("Finished running tasks.");
 });
 
+
 //////////////////////////////////////////////////////////////////////
-//  PRIVATE TASKS
+// TASKS
 //////////////////////////////////////////////////////////////////////
 
-Task("__Default")
-    .IsDependentOn("__Clean")
-    .IsDependentOn("__Restore")
-    .IsDependentOn("__UpdateAssemblyVersionInformation")
-    .IsDependentOn("__Build")
-    .IsDependentOn("__UpdateProjectJsonVersion")
-    .IsDependentOn("__Pack")
-	.IsDependentOn("__Publish")
-	.IsDependentOn("__CopyToLocalPackages");
-
-Task("__Clean")
+Task("Clean")
     .Does(() =>
 {
     CleanDirectory(artifactsDir);
@@ -70,108 +57,68 @@ Task("__Clean")
     CleanDirectories("./source/**/obj");
 });
 
-Task("__Restore")
-    .Does(() => DotNetCoreRestore());
-	
-Task("__UpdateAssemblyVersionInformation")
-    .Does(() =>
-{
-    cleanups.Add(new AutoRestoreFile(globalAssemblyFile));
-	GitVersion(new GitVersionSettings {
-        UpdateAssemblyInfo = true,
-        UpdateAssemblyInfoFilePath = globalAssemblyFile
+Task("Restore")
+    .IsDependentOn("Clean")
+    .Does(() => {
+        DotNetCoreRestore("source");
     });
 
-    Information("AssemblyVersion -> {0}", gitVersionInfo.AssemblySemVer);
-    Information("AssemblyFileVersion -> {0}", $"{gitVersionInfo.MajorMinorPatch}.0");
-    Information("AssemblyInformationalVersion -> {0}", gitVersionInfo.InformationalVersion);
-});
-
-Task("__Build")
-    .IsDependentOn("__UpdateAssemblyVersionInformation")
+Task("Build")
+    .IsDependentOn("Restore")
+    .IsDependentOn("Clean")
     .Does(() =>
 {
-    DotNetCoreBuild("**/project.json", new DotNetCoreBuildSettings
+    DotNetCoreBuild("./source", new DotNetCoreBuildSettings
     {
-        Configuration = configuration
+        Configuration = configuration,
+        ArgumentCustomization = args => args.Append($"/p:Version={nugetVersion}")
     });
 });
 
-Task("__UpdateProjectJsonVersion")
+
+Task("Pack")
+    .IsDependentOn("Build")
     .Does(() =>
 {
-    var projectToPackagePackageJson = $"{projectToPackage}/project.json";
-    cleanups.Add(new AutoRestoreFile(projectToPackagePackageJson));
-    Information("Updating {0} version -> {1}", projectToPackagePackageJson, nugetVersion);
-
-    TransformConfig(projectToPackagePackageJson, projectToPackagePackageJson, new TransformationCollection {
-        { "version", nugetVersion }
+    DotNetCorePack("./source/Octopus.Diagnostics", new DotNetCorePackSettings
+    {
+        Configuration = configuration,
+        OutputDirectory = artifactsDir,
+        NoBuild = true,
+        ArgumentCustomization = args => args.Append($"/p:Version={nugetVersion}")
     });
 });
 
-Task("__Pack")
-    .Does(() => 
+Task("CopyToLocalPackages")
+    .IsDependentOn("Pack")
+    .WithCriteria(BuildSystem.IsLocalBuild)
+    .Does(() =>
 {
-	DotNetCorePack(projectToPackage, new DotNetCorePackSettings
-	{
-		Configuration = configuration,
-		OutputDirectory = artifactsDir,
-		NoBuild = true
+    CreateDirectory(localPackagesDir);
+    CopyFileToDirectory($"{artifactsDir}/Octopus.Diagnostics.{nugetVersion}.nupkg", localPackagesDir);
+});
+
+Task("Publish")
+    .IsDependentOn("CopyToLocalPackages")
+    .WithCriteria(BuildSystem.IsRunningOnTeamCity)
+    .Does(() =>
+{
+	NuGetPush($"{artifactsDir}Octopus.Diagnostics.{nugetVersion}.nupkg", new NuGetPushSettings {
+		Source = "https://octopus.myget.org/F/octopus-dependencies/api/v3/index.json",
+		ApiKey = EnvironmentVariable("MyGetApiKey")
 	});
-});
 
-Task("__Publish")
-    .WithCriteria(isContinuousIntegrationBuild)
-    .Does(() =>
-{
-    var isPullRequest = !String.IsNullOrEmpty(EnvironmentVariable("APPVEYOR_PULL_REQUEST_NUMBER"));
-    var isMasterBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH") == "master" && !isPullRequest;
-    var shouldPushToMyGet = !BuildSystem.IsLocalBuild;
-    var shouldPushToNuGet = !BuildSystem.IsLocalBuild && isMasterBranch;
-
-    if (shouldPushToMyGet)
+    if (gitVersionInfo.PreReleaseTag == "")
     {
-        NuGetPush($"{artifactsDir}/{packageName}.{nugetVersion}.nupkg", new NuGetPushSettings {
-            Source = "https://octopus.myget.org/F/octopus-dependencies/api/v3/index.json",
-            ApiKey = EnvironmentVariable("MyGetApiKey")
-        });
-    }
-    if (shouldPushToNuGet)
-    {
-        NuGetPush($"{artifactsDir}/{packageName}.{nugetVersion}.nupkg", new NuGetPushSettings {
+          NuGetPush($"{artifactsDir}Octopus.Diagnostics.{nugetVersion}.nupkg", new NuGetPushSettings {
             Source = "https://www.nuget.org/api/v2/package",
             ApiKey = EnvironmentVariable("NuGetApiKey")
         });
     }
 });
 
-Task("__CopyToLocalPackages")
-    .WithCriteria(BuildSystem.IsLocalBuild)
-    .IsDependentOn("__Pack")
-    .Does(() =>
-{
-    CreateDirectory(localPackagesDir);
-    CopyFileToDirectory(Path.Combine(artifactsDir, $"{packageName}.{nugetVersion}.nupkg"), localPackagesDir);
-});
-
-private class AutoRestoreFile : IDisposable
-{
-	private byte[] _contents;
-	private string _filename;
-	public AutoRestoreFile(string filename)
-	{
-		_filename = filename;
-		_contents = IO.File.ReadAllBytes(filename);
-	}
-
-	public void Dispose() => IO.File.WriteAllBytes(_filename, _contents);
-}
-
-//////////////////////////////////////////////////////////////////////
-// TASKS
-//////////////////////////////////////////////////////////////////////
 Task("Default")
-    .IsDependentOn("__Default");
+    .IsDependentOn("CopyToLocalPackages");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION

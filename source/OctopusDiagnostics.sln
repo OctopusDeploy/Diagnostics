@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Octopus.Diagnostics", "Octopus.Diagnostics\Octopus.Diagnostics.xproj", "{89FE7423-3FA2-49D3-B28E-186A4105071E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Octopus.Diagnostics", "Octopus.Diagnostics\Octopus.Diagnostics.csproj", "{89FE7423-3FA2-49D3-B28E-186A4105071E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +18,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {286812EE-911C-4AB5-8CDB-BFEBEED6FD00}
 	EndGlobalSection
 EndGlobal

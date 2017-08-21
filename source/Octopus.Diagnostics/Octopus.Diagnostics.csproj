@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>portable</DebugType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>Octopus.Diagnostics</AssemblyName>
+    <PackageId>Octopus.Diagnostics</PackageId>
+    <PackageIconUrl>http://i.octopusdeploy.com/resources/Avatar3_360.png</PackageIconUrl>
+    <Authors>Octopus Deploy</Authors>
+    <Description>Diagnostics interfaces for Octopus, an opinionated deployment solution for .NET applications</Description>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Copyright>Copyright © Octopus Deploy 2017</Copyright>
+  </PropertyGroup>
+</Project>
