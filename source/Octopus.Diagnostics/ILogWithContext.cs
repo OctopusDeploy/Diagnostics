@@ -4,7 +4,7 @@ namespace Octopus.Diagnostics
 {
     public interface ILogWithContext : ILog
     {
-        LogContext CurrentContext { get; }
+        ILogContext CurrentContext { get; }
         bool IsVerboseEnabled { get; }
         bool IsErrorEnabled { get; }
         bool IsFatalEnabled { get; }
