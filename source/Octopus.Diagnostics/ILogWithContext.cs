@@ -55,7 +55,7 @@ namespace Octopus.Diagnostics
 
         /// <summary>
         /// Switches to a new logging context on the current thread, allowing you to begin logging within a block previously
-        /// begun using OpenBlock or PlanFutureBlock.
+        /// begun using <see cref="o:OpenBlock" /> or <see cref="o:PlanFutureBlock" />.
         /// </summary>
         /// <param name="logContext">The <see cref="ILogContext" /> to switch to.</param>
         /// <returns>An <see cref="IDisposable" /> that will automatically revert the current block when disposed.</returns>
