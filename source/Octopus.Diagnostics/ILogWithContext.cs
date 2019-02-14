@@ -32,8 +32,8 @@ namespace Octopus.Diagnostics
         /// Plans a new block of output that will be used in the future for grouping child blocks for logging.
         /// </summary>
         /// <param name="messageText">Title of the new block.</param>
-        /// <returns>An <see cref="LogContext" /> that will automatically revert the current block when disposed.</returns>
-        LogContext PlanGroupedBlock(string messageText);
+        /// <returns>An <see cref="ILogContext" /> that will automatically revert the current block when disposed.</returns>
+        ILogContext PlanGroupedBlock(string messageText);
 
         /// <summary>
         /// Plans a new block of log output that will be used in the future. This is typically used for high-level log
@@ -41,7 +41,7 @@ namespace Octopus.Diagnostics
         /// </summary>
         /// <param name="messageText">Title of the new block.</param>
         /// <returns>An <see cref="IDisposable" /> that will automatically revert the current block when disposed.</returns>
-        LogContext PlanFutureBlock(string messageText);
+        ILogContext PlanFutureBlock(string messageText);
 
         /// <summary>
         /// Plans a new block of log output that will be used in the future. This is typically used for high-level log
@@ -51,15 +51,15 @@ namespace Octopus.Diagnostics
         /// <param name="args">Arguments for the format string.</param>
         /// <returns>An <see cref="IDisposable" /> that will automatically revert the current block when disposed.</returns>
         [StringFormatMethod("messageFormat")]
-        LogContext PlanFutureBlock(string messageFormat, params object[] args);
+        ILogContext PlanFutureBlock(string messageFormat, params object[] args);
 
         /// <summary>
         /// Switches to a new logging context on the current thread, allowing you to begin logging within a block previously
         /// begun using OpenBlock or PlanFutureBlock.
         /// </summary>
-        /// <param name="logContext">The <see cref="LogContext" /> to switch to.</param>
+        /// <param name="logContext">The <see cref="ILogContext" /> to switch to.</param>
         /// <returns>An <see cref="IDisposable" /> that will automatically revert the current block when disposed.</returns>
-        IDisposable WithinBlock(LogContext logContext);
+        IDisposable WithinBlock(ILogContext logContext);
 
         /// <summary>
         /// Marks the current block as abandoned. Abandoned blocks won't be shown in the task log.
