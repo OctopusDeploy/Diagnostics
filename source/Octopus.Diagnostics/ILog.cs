@@ -4,32 +4,34 @@ namespace Octopus.Diagnostics
 {
     public interface ILog
     {
-        void Trace(string messageText, params object[] propertyValues);
+        void Trace(string messageText);
         void Trace(Exception error);
-        void Trace(Exception error, string messageText, params object[] propertyValues);
+        void Trace(Exception error, string messageText);
 
-        void Verbose(string messageText, params object[] propertyValues);
+        void Verbose(string messageText);
         void Verbose(Exception error);
-        void Verbose(Exception error, string messageText, params object[] propertyValues);
+        void Verbose(Exception error, string messageText);
 
-        void Info(string messageText, params object[] propertyValues);
+        void Info(string messageText);
         void Info(Exception error);
-        void Info(Exception error, string messageText, params object[] propertyValues);
+        void Info(Exception error, string messageText);
 
-        void Warn(string messageText, params object[] propertyValues);
+        void Warn(string messageText);
         void Warn(Exception error);
-        void Warn(Exception error, string messageText, params object[] propertyValues);
+        void Warn(Exception error, string messageText);
 
-        void Error(string messageText, params object[] propertyValues);
+        void Error(string messageText);
         void Error(Exception error);
-        void Error(Exception error, string messageText, params object[] propertyValues);
+        void Error(Exception error, string messageText);
 
-        void Fatal(string messageText, params object[] propertyValues);
+        void Fatal(string messageText);
         void Fatal(Exception error);
-        void Fatal(Exception error, string messageText, params object[] propertyValues);
+        void Fatal(Exception error, string messageText);
 
+        void Write(LogCategory category, string messageText);
         void Write(LogCategory category, string messageText, params object[] propertyValues);
         void Write(LogCategory category, Exception error);
+        void Write(LogCategory category, Exception error, string messageText);
         void Write(LogCategory category, Exception error, string messageText, params object[] propertyValues);
 
         [StringFormatMethod("messageFormat")]
