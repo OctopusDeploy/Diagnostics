@@ -10,7 +10,7 @@ namespace Octopus.Diagnostics
 
         void SafeSanitize(string raw, Action<string> action);
 
-        ILogContext CreateChild(string[] sensitiveValues = null);
+        ILogContext CreateChild(string[]? sensitiveValues = null);
 
         /// <summary>
         /// Adds additional sensitive-variables to the LogContext. 

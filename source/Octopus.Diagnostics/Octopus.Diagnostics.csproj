@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>portable</DebugType>
@@ -9,12 +9,13 @@
     <PackageId>Octopus.Diagnostics</PackageId>
     <PackageIconUrl>http://i.octopusdeploy.com/resources/Avatar3_360.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/OctopusDeploy/Diagnostics</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/OctopusDeploy/Diagnostics/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Authors>Octopus Deploy</Authors>
     <Description>Diagnostics interfaces for Octopus, an opinionated deployment solution for .NET applications</Description>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Copyright>Copyright © Octopus Deploy 2017</Copyright>
     <DisableImplicitAssetTargetFallback>true</DisableImplicitAssetTargetFallback>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.Analyzers.Compatibility" Version="0.2.12-alpha">
