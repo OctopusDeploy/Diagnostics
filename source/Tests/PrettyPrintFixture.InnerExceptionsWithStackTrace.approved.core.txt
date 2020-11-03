@@ -1,0 +1,23 @@
+Exception Level 3
+System.Exception
+   at Tests.PrettyPrintFixture.ThrowInnerException(Int32 n) in PrettyPrintFixture.cs:line <line_number>
+   at Tests.PrettyPrintFixture.CallThrowInnerException() in PrettyPrintFixture.cs:line <line_number>
+   at Tests.PrettyPrintFixture.CaptureException(Action action, Boolean stackTrace) in PrettyPrintFixture.cs:line <line_number>
+
+--Inner Exception--
+Exception Level 2
+System.Exception
+   at Tests.PrettyPrintFixture.ThrowInnerException(Int32 n) in PrettyPrintFixture.cs:line <line_number>
+   at Tests.PrettyPrintFixture.ThrowInnerException(Int32 n) in PrettyPrintFixture.cs:line <line_number>
+
+--Inner Exception--
+Exception Level 1
+System.Exception
+   at Tests.PrettyPrintFixture.ThrowInnerException(Int32 n) in PrettyPrintFixture.cs:line <line_number>
+   at Tests.PrettyPrintFixture.ThrowInnerException(Int32 n) in PrettyPrintFixture.cs:line <line_number>
+
+--Inner Exception--
+Innermost
+System.Exception
+   at Tests.PrettyPrintFixture.ThrowInnerException(Int32 n) in PrettyPrintFixture.cs:line <line_number>
+   at Tests.PrettyPrintFixture.ThrowInnerException(Int32 n) in PrettyPrintFixture.cs:line <line_number>
