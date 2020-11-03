@@ -1,7 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 // TOOLS
 //////////////////////////////////////////////////////////////////////
-#tool "nuget:?package=GitVersion.CommandLine&prerelease"
+#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
+#tool "dotnet:?package=GitVersion.Tool&version=5.3.5"
 
 using Path = System.IO.Path;
 using IO = System.IO;
@@ -27,7 +28,8 @@ string nugetVersion;
 Setup(context =>
 {
     gitVersionInfo = GitVersion(new GitVersionSettings {
-        OutputType = GitVersionOutput.Json
+        OutputType = GitVersionOutput.Json,
+        NoFetch = true
     });
 
     if(BuildSystem.IsRunningOnTeamCity)
@@ -75,9 +77,20 @@ Task("Build")
     });
 });
 
+Task("Test")
+    .IsDependentOn("Build")
+    .Does(() => {
+        DotNetCoreTest("./source", new DotNetCoreTestSettings
+			{
+				NoRestore = true,
+				NoBuild = true,
+				Configuration = configuration,
+			});
+	});
+
 
 Task("Pack")
-    .IsDependentOn("Build")
+    .IsDependentOn("Test")
     .Does(() =>
 {
     DotNetCorePack("./source/Octopus.Diagnostics", new DotNetCorePackSettings
