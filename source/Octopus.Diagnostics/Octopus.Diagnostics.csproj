@@ -7,7 +7,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Octopus.Diagnostics</AssemblyName>
     <PackageId>Octopus.Diagnostics</PackageId>
-    <PackageIconUrl>http://i.octopusdeploy.com/resources/Avatar3_360.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/OctopusDeploy/Diagnostics</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Authors>Octopus Deploy</Authors>

@@ -1,0 +1,5 @@
+Aggregate Exception
+--Inner Exception 1--
+Attempted to divide by zero.
+--Inner Exception 2--
+Attempted to divide by zero.

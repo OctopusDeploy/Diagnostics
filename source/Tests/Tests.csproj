@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Tests</AssemblyName>
+    <RootNamespace>Tests</RootNamespace>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>8.0</LangVersion>
+    <Optimize>true</Optimize> <!-- This is so that debug and release builds both give the same stack traces -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Octopus.Diagnostics\Octopus.Diagnostics.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.22" />
+    <PackageReference Include="Assent" Version="1.6.1" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+  </ItemGroup>
+
+</Project>
