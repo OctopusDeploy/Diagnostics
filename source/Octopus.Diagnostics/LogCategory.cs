@@ -1,4 +1,6 @@
-﻿namespace Octopus.Diagnostics
+﻿using System;
+
+namespace Octopus.Diagnostics
 {
     public enum LogCategory
     {

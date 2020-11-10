@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Data.SqlClient;
-using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Assent;
-using FluentAssertions;
 using NUnit.Framework;
 using Octopus.Diagnostics;
 
@@ -15,22 +12,19 @@ namespace Tests
 {
     public class PrettyPrintFixture
     {
-        private static readonly Configuration Config = new Configuration().UsingSanitiser(Sanitise);
+        static readonly Configuration Config = new Configuration().UsingSanitiser(Sanitise);
 
         // The stacktraces and some messages look different between Full Framework and .NET Core
         // Keep this while this class is still consumed by non-netcoreapp3.1 projects
 #if NETCOREAPP
-        private static readonly Configuration PlatformSpecificConfig = Config.UsingExtension("core.txt");
+        static readonly Configuration PlatformSpecificConfig = Config.UsingExtension("core.txt");
 #else
         private static readonly Configuration PlatformSpecificConfig = Config.UsingExtension("netfx.txt");
 #endif
 
-
         [Test]
         public void InnerExceptionsWithStackTrace()
         {
-
-
             var exception = CaptureException(CallThrowInnerException, true);
             this.Assent(exception, PlatformSpecificConfig);
         }
@@ -38,7 +32,7 @@ namespace Tests
         [Test]
         public void InnerExceptionsNoStackTrace()
         {
-            var exception = CaptureException(() => ThrowInnerException(), false);
+            var exception = CaptureException(() => ThrowInnerException());
             this.Assent(exception, Config);
         }
 
@@ -60,12 +54,13 @@ namespace Tests
         public void AggregateExceptionWithStackTrace()
         {
             var exception = CaptureException(() =>
-            {
-                Task.WaitAll(
-                    ThrowDivideByZeroExceptionAsync(),
-                    ThrowDivideByZeroExceptionAsync()
-                );
-            }, true);
+                {
+                    Task.WaitAll(
+                        ThrowDivideByZeroExceptionAsync(),
+                        ThrowDivideByZeroExceptionAsync()
+                    );
+                },
+                true);
 
             this.Assent(exception, PlatformSpecificConfig);
         }
@@ -93,7 +88,7 @@ namespace Tests
                 typeof(SqlError),
                 BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
-                new object?[] {0, (byte) 0, (byte) 0, "", "The Error Message", "", 42, null},
+                new object?[] { 0, (byte)0, (byte)0, "", "The Error Message", "", 42, null },
                 null
             );
 
@@ -106,13 +101,13 @@ namespace Tests
             )!;
 
             sqlErrors.GetType().GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .Invoke(sqlErrors, new[] {sqlError});
+                .Invoke(sqlErrors, new[] { sqlError });
 
-            var exception = (Exception) Activator.CreateInstance(
+            var exception = (Exception)Activator.CreateInstance(
                 typeof(SqlException),
                 BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
-                new object?[]
+                new[]
                 {
                     "A fake SQLException",
                     sqlErrors,
@@ -169,14 +164,13 @@ namespace Tests
             }
         }
 
-        private static string Sanitise(string approval)
+        static string Sanitise(string approval)
         {
             approval = Regex.Replace(approval, "line [0-9]+", "line <line_number>");
             approval = Regex.Replace(approval, @">b__[0-9_]+\(\)", "><compiler_generated>()");
             return approval;
         }
     }
-
 
     class ControlledFailureException : Exception
     {

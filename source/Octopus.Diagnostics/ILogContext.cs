@@ -13,13 +13,13 @@ namespace Octopus.Diagnostics
         ILogContext CreateChild(string[]? sensitiveValues = null);
 
         /// <summary>
-        /// Adds additional sensitive-variables to the LogContext. 
+        /// Adds additional sensitive-variables to the LogContext.
         /// </summary>
         /// <returns>The existing LogContext</returns>
         ILogContext WithSensitiveValues(string[] sensitiveValues);
 
         /// <summary>
-        /// Adds an additional sensitive-variable to the LogContext. 
+        /// Adds an additional sensitive-variable to the LogContext.
         /// </summary>
         /// <returns>The existing LogContext</returns>
         ILogContext WithSensitiveValue(string sensitiveValue);

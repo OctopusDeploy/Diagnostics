@@ -17,17 +17,15 @@ namespace Octopus.Diagnostics
     /// </code>
     /// </example>
     [AttributeUsage(
-         AttributeTargets.Constructor | AttributeTargets.Method)]
+        AttributeTargets.Constructor | AttributeTargets.Method)]
     public sealed class StringFormatMethodAttribute : Attribute
     {
         /// <param name="formatParameterName">
         /// Specifies which parameter of an annotated method should be treated as format-string
         /// </param>
         public StringFormatMethodAttribute(string formatParameterName)
-        {
-            FormatParameterName = formatParameterName;
-        }
+            => FormatParameterName = formatParameterName;
 
-        public string FormatParameterName { get; private set; }
+        public string FormatParameterName { get; }
     }
 }
