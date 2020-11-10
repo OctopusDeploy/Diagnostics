@@ -20,6 +20,11 @@ ProjectSection(SolutionItems) = preProject
 	..\readme.md = ..\readme.md
 EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{689CFC48-F2DC-4A32-B1C8-D1E87B8C32A0}"
+ProjectSection(SolutionItems) = preProject
+	OctopusDiagnostics.sln.DotSettings = OctopusDiagnostics.sln.DotSettings
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
