@@ -8,6 +8,8 @@ namespace Octopus.Diagnostics
 
         ITaskLogContext CreateChild(string[]? sensitiveValues = null);
 
+        void SafeSanitize(string raw, Action<string> action);
+        
         /// <summary>
         /// Adds additional sensitive-variables to the LogContext.
         /// </summary>
