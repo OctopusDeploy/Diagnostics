@@ -4,6 +4,18 @@ namespace Octopus.Diagnostics
 {
     public interface ILog
     {
+        string CorrelationId { get; }
+
+        /// <summary>
+        /// Adds additional sensitive-variables to the LogContext.
+        /// </summary>
+        void WithSensitiveValues(string[] sensitiveValues);
+
+        /// <summary>
+        /// Adds an additional sensitive-variable to the LogContext.
+        /// </summary>
+        void WithSensitiveValue(string sensitiveValue);
+
         void Trace(string messageText);
         void Trace(Exception error);
         void Trace(Exception error, string messageText);
