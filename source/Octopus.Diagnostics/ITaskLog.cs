@@ -28,6 +28,13 @@ namespace Octopus.Diagnostics
         ITaskLog CreateBlock(string messageFormat, params object[] args);
 
         /// <summary>
+        /// Creates a child context with the same correlationId and additional sensitive values.
+        /// </summary>
+        /// <param name="sensitiveValues">Additional sensitive values.</param>
+        /// <returns>A new child task log</returns>
+        ITaskLog ChildContext(string[] sensitiveValues);
+
+        /// <summary>
         /// Plans a new block of output that will be used in the future for grouping child blocks for logging.
         /// </summary>
         /// <param name="messageText">Title of the new block.</param>
