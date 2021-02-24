@@ -80,8 +80,9 @@ function MD5HashFile([string] $filePath)
     }
 }
 
-Write-Host "Preparing to run build script..."
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;
 
+Write-Host "Preparing to run build script..."
 if(!$PSScriptRoot){
     $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
 }
@@ -130,7 +131,7 @@ if (!(Test-Path $PACKAGES_CONFIG)) {
 # Try find NuGet.exe in path if not exists
 if (!(Test-Path $NUGET_EXE)) {
     Write-Verbose -Message "Trying to find nuget.exe in PATH..."
-    $existingPaths = $Env:Path -Split ';' | Where-Object { (![string]::IsNullOrEmpty($_)) -and (Test-Path $_ -PathType Container) }
+    $existingPaths = $Env:Path -Split ';' | Where-Object { (![string]::IsNullOrEmpty($_)) -and (Test-Path $_) }
     $NUGET_EXE_IN_PATH = Get-ChildItem -Path $existingPaths -Filter "nuget.exe" | Select -First 1
     if ($NUGET_EXE_IN_PATH -ne $null -and (Test-Path $NUGET_EXE_IN_PATH.FullName)) {
         Write-Verbose -Message "Found in PATH at $($NUGET_EXE_IN_PATH.FullName)."
