@@ -22,7 +22,7 @@ namespace Octopus.Diagnostics
 
         public static void AddCustomExceptionHandler<TException>(HandleExceptionOfType handler)
         {
-            CustomExceptionTypeHandlers.Add(typeof(TException), handler);
+            CustomExceptionTypeHandlers[typeof(TException)] = handler;
         }
 
         public static string PrettyPrint(this Exception ex, bool printStackTrace = true)
