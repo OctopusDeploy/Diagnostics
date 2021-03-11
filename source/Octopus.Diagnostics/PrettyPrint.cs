@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -46,9 +47,9 @@ namespace Octopus.Diagnostics
             }
 
             var exceptionType = ex.GetType();
-            if (CustomExceptionTypeHandlers.ContainsKey(exceptionType))
+            var handler = HandlerForType(exceptionType);
+            if (handler != null)
             {
-                var handler = CustomExceptionTypeHandlers[exceptionType];
                 if (handler(sb, ex) == false)
                     return;
             }
@@ -67,6 +68,16 @@ namespace Octopus.Diagnostics
                 sb.AppendLine("--Inner Exception--");
 
             PrettyPrint(sb, ex.InnerException, printStackTrace);
+        }
+
+        static HandleExceptionOfType? HandlerForType(Type exceptionType)
+        {
+            var exceptionTypeInfo = exceptionType.GetTypeInfo();
+            var key = CustomExceptionTypeHandlers.Keys.FirstOrDefault(k => k.GetTypeInfo().IsAssignableFrom(exceptionTypeInfo));
+            if (key == null)
+                return null;
+            var handler = CustomExceptionTypeHandlers[key];
+            return handler;
         }
 
         static void AppendAggregateException(StringBuilder sb, bool printStackTrace, AggregateException aex)
