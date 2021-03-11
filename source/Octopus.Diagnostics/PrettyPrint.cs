@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -8,6 +9,21 @@ namespace Octopus.Diagnostics
 {
     public static class ExceptionExtensions
     {
+        /// <summary>
+        /// Custom handler for PrettyPrinting a type of exception
+        /// </summary>
+        /// <param name="sb">StringBuilder for the "pretty" output</param>
+        /// <param name="ex">The exception instance</param>
+        /// <returns>True if the processing should continue on to processing stack trace or inner exceptions</returns>
+        public delegate bool HandleExceptionOfType(StringBuilder sb, Exception ex);
+
+        static readonly IDictionary<Type, HandleExceptionOfType> CustomExceptionTypeHandlers = new Dictionary<Type, HandleExceptionOfType>();
+
+        public static void AddCustomExceptionHandler<TException>(HandleExceptionOfType handler)
+        {
+            CustomExceptionTypeHandlers.Add(typeof(TException), handler);
+        }
+
         public static string PrettyPrint(this Exception ex, bool printStackTrace = true)
         {
             var sb = new StringBuilder();
@@ -29,18 +45,17 @@ namespace Octopus.Diagnostics
                 return;
             }
 
-            if (ex.GetType().Name == "SqlException")
+            var exceptionType = ex.GetType();
+            if (CustomExceptionTypeHandlers.ContainsKey(exceptionType))
             {
-                var number = ex.GetType().GetRuntimeProperty("Number")?.GetValue(ex);
-                sb.AppendLine($"SQL Error {number} - {ex.Message}");
+                var handler = CustomExceptionTypeHandlers[exceptionType];
+                if (handler(sb, ex) == false)
+                    return;
             }
             else
             {
                 sb.AppendLine(ex.Message);
             }
-
-            if (ex.GetType().Name == "ControlledFailureException")
-                return;
 
             if (printStackTrace)
                 AddStackTrace(sb, ex);

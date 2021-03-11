@@ -22,6 +22,22 @@ namespace Tests
         private static readonly Configuration PlatformSpecificConfig = Config.UsingExtension("netfx.txt");
 #endif
 
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            ExceptionExtensions.AddCustomExceptionHandler<SqlException>((sb, ex) =>
+            {
+                var number = ((SqlException)ex).Number;
+                sb.AppendLine($"SQL Error {number} - {ex.Message}");
+                return true;
+            });
+            ExceptionExtensions.AddCustomExceptionHandler<ControlledFailureException>((sb, ex) =>
+            {
+                sb.AppendLine(ex.Message);
+                return false;
+            });
+        }
+
         [Test]
         public void InnerExceptionsWithStackTrace()
         {
