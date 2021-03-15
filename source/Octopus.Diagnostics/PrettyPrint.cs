@@ -10,19 +10,34 @@ namespace Octopus.Diagnostics
 {
     public static class ExceptionExtensions
     {
-        /// <summary>
-        /// Custom handler for PrettyPrinting a type of exception
-        /// </summary>
-        /// <param name="sb">StringBuilder for the "pretty" output</param>
-        /// <param name="ex">The exception instance</param>
-        /// <returns>True if the processing should continue on to processing stack trace or inner exceptions</returns>
-        public delegate bool HandleExceptionOfType(StringBuilder sb, Exception ex);
+        static readonly IDictionary<Type, ICustomPrettyPrintHandler> CustomExceptionTypeHandlers = new Dictionary<Type, ICustomPrettyPrintHandler>();
 
-        static readonly IDictionary<Type, HandleExceptionOfType> CustomExceptionTypeHandlers = new Dictionary<Type, HandleExceptionOfType>();
-
-        public static void AddCustomExceptionHandler<TException>(HandleExceptionOfType handler)
+        static ExceptionExtensions()
         {
-            CustomExceptionTypeHandlers[typeof(TException)] = handler;
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name!.StartsWith("Octopus.")).ToArray();
+            var handlers = assemblies
+                .SelectMany(a => a.GetTypes())
+                .ToArray()
+                .Where(t => !t.IsInterface && !t.IsAbstract && typeof(ICustomPrettyPrintHandler).IsAssignableFrom(t))
+                .ToArray();
+
+            var handlersWhoImplementTheWrongInterface = handlers.Where(t => !t.GetInterfaces()
+                .Any(i => typeof(ICustomPrettyPrintHandler).IsAssignableFrom(i) && i.GenericTypeArguments.Length > 0 && typeof(Exception).IsAssignableFrom(i.GenericTypeArguments.First())))
+                .Select(t => t.FullName)
+                .ToArray();
+            if (handlersWhoImplementTheWrongInterface.Length > 0)
+                throw new ArgumentException($"The following custom PrettyPrint handlers must implement ICustomPrettyPrintHandler<TException>, {string.Join(", ", handlersWhoImplementTheWrongInterface)}");
+
+            foreach (var handler in handlers)
+            {
+                var interfaces = handler.GetInterfaces();
+                var exceptionType = interfaces.First(t => typeof(ICustomPrettyPrintHandler).IsAssignableFrom(t))
+                    .GetGenericArguments().First();
+                var instance = Activator.CreateInstance(handler);
+                if (instance == null)
+                    throw new ArgumentException($"Unable to create PrettyPrint handler of type {handler.FullName}");
+                CustomExceptionTypeHandlers[exceptionType] = (ICustomPrettyPrintHandler)instance;
+            }
         }
 
         public static string PrettyPrint(this Exception ex, bool printStackTrace = true)
@@ -50,7 +65,7 @@ namespace Octopus.Diagnostics
             var handler = HandlerForType(exceptionType);
             if (handler != null)
             {
-                if (handler(sb, ex) == false)
+                if (handler.Handle(sb, ex) == false)
                     return;
             }
             else
@@ -70,7 +85,7 @@ namespace Octopus.Diagnostics
             PrettyPrint(sb, ex.InnerException, printStackTrace);
         }
 
-        static HandleExceptionOfType? HandlerForType(Type exceptionType)
+        static ICustomPrettyPrintHandler? HandlerForType(Type exceptionType)
         {
             var exceptionTypeInfo = exceptionType.GetTypeInfo();
             var key = CustomExceptionTypeHandlers.Keys.FirstOrDefault(k => k.GetTypeInfo().IsAssignableFrom(exceptionTypeInfo));

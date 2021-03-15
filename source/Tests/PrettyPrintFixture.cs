@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Assent;
@@ -10,6 +11,24 @@ using Octopus.Diagnostics;
 
 namespace Tests
 {
+    class SqlPrettyPrintHandler : ICustomPrettyPrintHandler<SqlException>
+    {
+        public bool Handle(StringBuilder sb, Exception ex)
+        {
+            var number = ((SqlException)ex).Number;
+            sb.AppendLine($"SQL Error {number} - {ex.Message}");
+            return true;
+        }
+    }
+    class ControlledFailureExceptionPrettyPrintHandler : ICustomPrettyPrintHandler<ControlledFailureException>
+    {
+        public bool Handle(StringBuilder sb, Exception ex)
+        {
+            sb.AppendLine(ex.Message);
+            return false;
+        }
+    }
+
     public class PrettyPrintFixture
     {
         static readonly Configuration Config = new Configuration().UsingSanitiser(Sanitise);
@@ -21,22 +40,6 @@ namespace Tests
 #else
         private static readonly Configuration PlatformSpecificConfig = Config.UsingExtension("netfx.txt");
 #endif
-
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            ExceptionExtensions.AddCustomExceptionHandler<SqlException>((sb, ex) =>
-            {
-                var number = ((SqlException)ex).Number;
-                sb.AppendLine($"SQL Error {number} - {ex.Message}");
-                return true;
-            });
-            ExceptionExtensions.AddCustomExceptionHandler<ControlledFailureException>((sb, ex) =>
-            {
-                sb.AppendLine(ex.Message);
-                return false;
-            });
-        }
 
         [Test]
         public void InnerExceptionsWithStackTrace()
