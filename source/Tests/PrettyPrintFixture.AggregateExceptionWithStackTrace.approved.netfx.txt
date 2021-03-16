@@ -1,21 +1,21 @@
 Aggregate Exception
 System.AggregateException
    at System.Threading.Tasks.Task.WaitAll(Task[] tasks, Int32 millisecondsTimeout, CancellationToken cancellationToken)
-   at Tests.PrettyPrintFixture.<AggregateExceptionWithStackTrace><compiler_generated>() in PrettyPrintFixture.cs:line <line_number>
-   at Tests.PrettyPrintFixture.CaptureException(Action action, Boolean stackTrace) in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.<AggregateExceptionWithStackTrace><compiler_generated>() in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.CaptureException(Action action, Boolean stackTrace) in PrettyPrintFixture.cs:line <line_number>
 
 --Inner Exception 1--
 Attempted to divide by zero.
 System.DivideByZeroException
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
 
 --Inner Exception 2--
 Attempted to divide by zero.
 System.DivideByZeroException
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
-   at Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
+   at Octopus.Diagnostics.Tests.PrettyPrintFixture.ThrowDivideByZeroExceptionAsync in PrettyPrintFixture.cs:line <line_number>
