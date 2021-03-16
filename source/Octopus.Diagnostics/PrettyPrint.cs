@@ -8,35 +8,32 @@ using System.Text.RegularExpressions;
 
 namespace Octopus.Diagnostics
 {
-    public static class ExceptionExtensions
+    public static class ExceptionExtensionMethods
     {
-        static readonly IDictionary<Type, ICustomPrettyPrintHandler> CustomExceptionTypeHandlers = new Dictionary<Type, ICustomPrettyPrintHandler>();
+        static readonly IDictionary<Type, object> CustomExceptionTypeHandlers = new Dictionary<Type, object>();
 
-        static ExceptionExtensions()
+        static ExceptionExtensionMethods()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name!.StartsWith("Octopus.")).ToArray();
-            var handlers = assemblies
-                .SelectMany(a => a.GetTypes())
-                .ToArray()
-                .Where(t => !t.IsInterface && !t.IsAbstract && typeof(ICustomPrettyPrintHandler).IsAssignableFrom(t))
+            var typeInfosToCheck = assemblies
+                .SelectMany(a => a.DefinedTypes)
                 .ToArray();
-
-            var handlersWhoImplementTheWrongInterface = handlers.Where(t => !t.GetInterfaces()
-                .Any(i => typeof(ICustomPrettyPrintHandler).IsAssignableFrom(i) && i.GenericTypeArguments.Length > 0 && typeof(Exception).IsAssignableFrom(i.GenericTypeArguments.First())))
-                .Select(t => t.FullName)
+            var handlers = typeInfosToCheck
+                .Where(t => !t.IsInterface && !t.IsAbstract && t.IsClosedGenericOfType(typeof(ICustomPrettyPrintHandler<>)))
                 .ToArray();
-            if (handlersWhoImplementTheWrongInterface.Length > 0)
-                throw new ArgumentException($"The following custom PrettyPrint handlers must implement ICustomPrettyPrintHandler<TException>, {string.Join(", ", handlersWhoImplementTheWrongInterface)}");
 
             foreach (var handler in handlers)
             {
-                var interfaces = handler.GetInterfaces();
-                var exceptionType = interfaces.First(t => typeof(ICustomPrettyPrintHandler).IsAssignableFrom(t))
-                    .GetGenericArguments().First();
-                var instance = Activator.CreateInstance(handler);
+                var instance = Activator.CreateInstance(handler)!;
                 if (instance == null)
                     throw new ArgumentException($"Unable to create PrettyPrint handler of type {handler.FullName}");
-                CustomExceptionTypeHandlers[exceptionType] = (ICustomPrettyPrintHandler)instance;
+
+                var exceptionTypes = handler.ClosedGenericOfExceptionTypes(typeof(ICustomPrettyPrintHandler<>))
+                    .ToArray();
+                foreach (var exceptionType in exceptionTypes)
+                {
+                    CustomExceptionTypeHandlers[exceptionType] = instance;
+                }
             }
         }
 
@@ -48,6 +45,12 @@ namespace Octopus.Diagnostics
         }
 
         static void PrettyPrint(StringBuilder sb, Exception ex, bool printStackTrace)
+        {
+            PrettyPrintInternal(sb, (dynamic)ex, printStackTrace);
+        }
+
+        static void PrettyPrintInternal<TException>(StringBuilder sb, TException ex, bool printStackTrace)
+            where TException : Exception
         {
             if (ex is AggregateException aex)
             {
@@ -61,8 +64,7 @@ namespace Octopus.Diagnostics
                 return;
             }
 
-            var exceptionType = ex.GetType();
-            var handler = HandlerForType(exceptionType);
+            var handler = HandlerForType<TException>();
             if (handler != null)
             {
                 if (handler.Handle(sb, ex) == false)
@@ -85,14 +87,15 @@ namespace Octopus.Diagnostics
             PrettyPrint(sb, ex.InnerException, printStackTrace);
         }
 
-        static ICustomPrettyPrintHandler? HandlerForType(Type exceptionType)
+        static ICustomPrettyPrintHandler<TException>? HandlerForType<TException>()
+            where TException : Exception
         {
-            var exceptionTypeInfo = exceptionType.GetTypeInfo();
+            var exceptionTypeInfo = typeof(TException).GetTypeInfo();
             var key = CustomExceptionTypeHandlers.Keys.FirstOrDefault(k => k.GetTypeInfo().IsAssignableFrom(exceptionTypeInfo));
             if (key == null)
                 return null;
             var handler = CustomExceptionTypeHandlers[key];
-            return handler;
+            return (ICustomPrettyPrintHandler<TException>)handler;
         }
 
         static void AppendAggregateException(StringBuilder sb, bool printStackTrace, AggregateException aex)

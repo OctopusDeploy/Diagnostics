@@ -4,9 +4,11 @@ using System.Text;
 namespace Octopus.Diagnostics
 {
     /// <summary>
-    /// Do not implement this interface directly, use the generics based one.
+    /// BEWARE your custom exception types must be public or the dynamic dispatch we do in here will not work correctly!!!
     /// </summary>
-    public interface ICustomPrettyPrintHandler
+    /// <typeparam name="TException"></typeparam>
+    public interface ICustomPrettyPrintHandler<in TException>
+        where TException : Exception
     {
         /// <summary>
         /// Custom handler for PrettyPrinting a type of exception
@@ -14,10 +16,6 @@ namespace Octopus.Diagnostics
         /// <param name="sb">StringBuilder for the "pretty" output</param>
         /// <param name="ex">The exception instance</param>
         /// <returns>True if the processing should continue on to processing stack trace or inner exceptions</returns>
-        bool Handle(StringBuilder sb, Exception ex);
-    }
-
-    public interface ICustomPrettyPrintHandler<in TException> : ICustomPrettyPrintHandler
-    {
+        bool Handle(StringBuilder sb, TException ex);
     }
 }

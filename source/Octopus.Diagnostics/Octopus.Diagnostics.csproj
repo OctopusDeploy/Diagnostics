@@ -23,4 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" Condition="'$(TargetFramework)' == 'net452'" />
+  </ItemGroup>
 </Project>
