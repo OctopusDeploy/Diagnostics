@@ -2,14 +2,32 @@
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Assent;
 using NUnit.Framework;
-using Octopus.Diagnostics;
 
-namespace Tests
+namespace Octopus.Diagnostics.Tests
 {
+    class SqlPrettyPrintHandler : ICustomPrettyPrintHandler<SqlException>
+    {
+        public bool Handle(StringBuilder sb, SqlException ex)
+        {
+            var number = ex.Number;
+            sb.AppendLine($"SQL Error {number} - {ex.Message}");
+            return true;
+        }
+    }
+    class ControlledFailureExceptionPrettyPrintHandler : ICustomPrettyPrintHandler<ControlledFailureException>
+    {
+        public bool Handle(StringBuilder sb, ControlledFailureException ex)
+        {
+            sb.AppendLine(ex.Message);
+            return false;
+        }
+    }
+
     public class PrettyPrintFixture
     {
         static readonly Configuration Config = new Configuration().UsingSanitiser(Sanitise);
@@ -172,7 +190,7 @@ namespace Tests
         }
     }
 
-    class ControlledFailureException : Exception
+    public class ControlledFailureException : Exception
     {
         public ControlledFailureException() : base("The deployment failed")
         {

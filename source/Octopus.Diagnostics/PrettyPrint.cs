@@ -1,13 +1,42 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Octopus.Diagnostics
 {
-    public static class ExceptionExtensions
+    public static class ExceptionExtensionMethods
     {
+        static readonly IDictionary<Type, object> CustomExceptionTypeHandlers = new Dictionary<Type, object>();
+
+        static ExceptionExtensionMethods()
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name!.StartsWith("Octopus.")).ToArray();
+            var typeInfosToCheck = assemblies
+                .SelectMany(a => a.DefinedTypes)
+                .ToArray();
+            var handlers = typeInfosToCheck
+                .Where(t => !t.IsInterface && !t.IsAbstract && t.IsClosedGenericOfType(typeof(ICustomPrettyPrintHandler<>)))
+                .ToArray();
+
+            foreach (var handler in handlers)
+            {
+                var instance = Activator.CreateInstance(handler)!;
+                if (instance == null)
+                    throw new ArgumentException($"Unable to create PrettyPrint handler of type {handler.FullName}");
+
+                var exceptionTypes = handler.ClosedGenericOfExceptionTypes(typeof(ICustomPrettyPrintHandler<>))
+                    .ToArray();
+                foreach (var exceptionType in exceptionTypes)
+                {
+                    CustomExceptionTypeHandlers[exceptionType] = instance;
+                }
+            }
+        }
+
         public static string PrettyPrint(this Exception ex, bool printStackTrace = true)
         {
             var sb = new StringBuilder();
@@ -16,6 +45,12 @@ namespace Octopus.Diagnostics
         }
 
         static void PrettyPrint(StringBuilder sb, Exception ex, bool printStackTrace)
+        {
+            PrettyPrintInternal(sb, (dynamic)ex, printStackTrace);
+        }
+
+        static void PrettyPrintInternal<TException>(StringBuilder sb, TException ex, bool printStackTrace)
+            where TException : Exception
         {
             if (ex is AggregateException aex)
             {
@@ -29,18 +64,16 @@ namespace Octopus.Diagnostics
                 return;
             }
 
-            if (ex.GetType().Name == "SqlException")
+            var handler = HandlerForType<TException>();
+            if (handler != null)
             {
-                var number = ex.GetType().GetRuntimeProperty("Number")?.GetValue(ex);
-                sb.AppendLine($"SQL Error {number} - {ex.Message}");
+                if (handler.Handle(sb, ex) == false)
+                    return;
             }
             else
             {
                 sb.AppendLine(ex.Message);
             }
-
-            if (ex.GetType().Name == "ControlledFailureException")
-                return;
 
             if (printStackTrace)
                 AddStackTrace(sb, ex);
@@ -52,6 +85,17 @@ namespace Octopus.Diagnostics
                 sb.AppendLine("--Inner Exception--");
 
             PrettyPrint(sb, ex.InnerException, printStackTrace);
+        }
+
+        static ICustomPrettyPrintHandler<TException>? HandlerForType<TException>()
+            where TException : Exception
+        {
+            var exceptionTypeInfo = typeof(TException).GetTypeInfo();
+            var key = CustomExceptionTypeHandlers.Keys.FirstOrDefault(k => k.GetTypeInfo().IsAssignableFrom(exceptionTypeInfo));
+            if (key == null)
+                return null;
+            var handler = CustomExceptionTypeHandlers[key];
+            return (ICustomPrettyPrintHandler<TException>)handler;
         }
 
         static void AppendAggregateException(StringBuilder sb, bool printStackTrace, AggregateException aex)
