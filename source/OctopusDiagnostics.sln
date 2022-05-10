@@ -25,12 +25,16 @@ ProjectSection(SolutionItems) = preProject
 	OctopusDiagnostics.sln.DotSettings = OctopusDiagnostics.sln.DotSettings
 EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{056588C9-2340-499D-875C-ED5289D82549}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{056588C9-2340-499D-875C-ED5289D82549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{056588C9-2340-499D-875C-ED5289D82549}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89FE7423-3FA2-49D3-B28E-186A4105071E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{89FE7423-3FA2-49D3-B28E-186A4105071E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89FE7423-3FA2-49D3-B28E-186A4105071E}.Release|Any CPU.ActiveCfg = Release|Any CPU
