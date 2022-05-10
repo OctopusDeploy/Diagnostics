@@ -11,7 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{C53C629D-70E8-41
 ProjectSection(SolutionItems) = preProject
 	..\.gitattributes = ..\.gitattributes
 	..\.gitignore = ..\.gitignore
-	..\build.cake = ..\build.cake
 	..\build.cmd = ..\build.cmd
 	..\build.ps1 = ..\build.ps1
 	..\CONTRIBUTING.md = ..\CONTRIBUTING.md
