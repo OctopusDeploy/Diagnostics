@@ -31,9 +31,7 @@ namespace Octopus.Diagnostics
                 var exceptionTypes = handler.ClosedGenericOfExceptionTypes(typeof(ICustomPrettyPrintHandler<>))
                     .ToArray();
                 foreach (var exceptionType in exceptionTypes)
-                {
                     CustomExceptionTypeHandlers[exceptionType] = instance;
-                }
             }
         }
 

@@ -19,6 +19,7 @@ namespace Octopus.Diagnostics.Tests
             return true;
         }
     }
+
     class ControlledFailureExceptionPrettyPrintHandler : ICustomPrettyPrintHandler<ControlledFailureException>
     {
         public bool Handle(StringBuilder sb, ControlledFailureException ex)
